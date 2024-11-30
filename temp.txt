@@ -1,0 +1,33 @@
+public void setScreen(Font customFont) throws IOException {
+        this.leaderBoardPanel.setLayout(new GridLayout(10, 3, 10, 10));
+
+        try {
+            Scanner sc = new Scanner(new File("D:\\sourceCode\\Flappy-bird-main\\src\\GameObject\\LeaderBoard.txt"));
+            customFont = customFont.deriveFont(Font.PLAIN, 40f);
+            for (int i = 0; i < 10; i++) {
+                JLabel rank = new JLabel(String.format("%d", i + 1));
+                rank.setFont(customFont);
+                rank.setForeground(Color.WHITE);
+                this.leaderBoardPanel.add(rank);
+
+                JLabel username = new JLabel(sc.next());
+                username.setFont(customFont);
+                username.setForeground(Color.WHITE);
+                this.leaderBoardPanel.add(username);
+
+                JLabel score = new JLabel(sc.next()); // Điểm số
+                score.setFont(customFont);
+                score.setForeground(Color.WHITE);
+                this.leaderBoardPanel.add(score);
+            }
+            sc.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void setScreenBackground() throws IOException {
+        this.backGround = ImageIO.read(new File("D:\\sourceCode\\Flappy-bird-main\\res\\LeaderBoard_Board_resize.png"));
+        JLabel picLabel = new JLabel(new ImageIcon(this.backGround));
+        this.leaderBoardPanel.add(picLabel);
+    }
