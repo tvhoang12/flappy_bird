@@ -22,14 +22,8 @@ public class LeaderBoard extends JPanel {
         // tao leaderboard
         setLayout(new GridLayout(10, 1));
         setPreferredSize(new Dimension(300, 400));
-        // setBackground(new ImageIcon(getClass().getResource("/res/LeaderBoard_Board_resize.png")));
         setBorder(BorderFactory.createLineBorder(Color.BLACK));
         add(showLeaderBoard());
-        // for (Player p : highScore) {
-        //     JLabel label = new JLabel(p.getNickName() + " " + p.getScore());
-        //     setFont(new Font("Arial", Font.BOLD, 20));
-        //     add(label);
-        // }
     }
 
     @Override
