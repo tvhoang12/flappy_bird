@@ -35,7 +35,7 @@ public class Game extends JPanel implements ActionListener, KeyListener,MouseLis
     Timer gameLoop;
     Timer placePipeTimer;
     boolean gameOver = false;
-    double score = 0;
+    int score = 0;
     
     public static Audio audio = new Audio();
     
@@ -69,14 +69,15 @@ public class Game extends JPanel implements ActionListener, KeyListener,MouseLis
         setPreferredSize(new Dimension(boardWidth, boardHeight));
         addKeyListener(this);
         try {
-            birdImage[0] =  ImageIO.read(new File("/res/yellowBird1.png"));
-            birdImage[1] = ImageIO.read(new File("/res/yellowBird2.png"));
-            birdImage[2] = ImageIO.read(new File("/res/yellowBird3.png"));
-            topPipeImage = ImageIO.read(new File("/res/pipe-south.png"));
-            bottomPipeImage = ImageIO.read(new File("/res/pipe-north.png"));
-            foregroundImage = ImageIO.read(new File("/res/foreground.png"));
-            backgroundImage = ImageIO.read(new File("/res/background.png"));
-        } catch (IOException e) {
+            birdImage[0] =  ImageIO.read(new File("D:\\sourceCode\\Flappy-bird-main\\res\\yellowBird1.png"));
+            birdImage[1] = ImageIO.read(new File("D:\\sourceCode\\Flappy-bird-main\\res\\yellowBird2.png"));
+            birdImage[2] = ImageIO.read(new File("D:\\sourceCode\\Flappy-bird-main\\res\\yellowBird3.png"));
+            topPipeImage = ImageIO.read(new File("D:\\sourceCode\\Flappy-bird-main\\res\\pipe-south.png"));
+            bottomPipeImage = ImageIO.read(new File("D:\\sourceCode\\Flappy-bird-main\\res\\pipe-north.png"));
+            foregroundImage = ImageIO.read(new File("D:\\sourceCode\\Flappy-bird-main\\res\\foreground.png"));
+            backgroundImage = ImageIO.read(new File("D:\\sourceCode\\Flappy-bird-main\\res\\background.png"));
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         bird = new Bird(birdX, birdY, birdWidth, birdHeight, birdImage);
