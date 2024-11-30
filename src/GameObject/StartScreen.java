@@ -22,7 +22,7 @@ public class StartScreen extends JPanel {
 
         //tao label cho tieu de
         JLabel title = new JLabel("Flappy Bird");
-        title.setFont(new Font("Arial", Font.BOLD, 20));
+        title.setFont(new Font("Arial", Font.BOLD, 50));
         c.gridx = 0;
         c.gridy = 0;
         add(title, c);
@@ -32,17 +32,27 @@ public class StartScreen extends JPanel {
         startButton.setIcon(new ImageIcon(getClass().getResource("/res/playbutton.png")));
         c.gridx = 0;
         c.gridy = 1;
+
+        //loai bo vien
+        startButton.setBorderPainted(false);
+        startButton.setContentAreaFilled(false);
+        startButton.setFocusPainted(false);
+        startButton.setOpaque(false);
+
         add(startButton, c);
-        setVisible(true);
         
         //tao button leaderboard
         JButton leaderBoardButton = new JButton();
         leaderBoardButton.setIcon(new ImageIcon(getClass().getResource("/res/leaderboardbutton.png")));
         c.gridx = 1;
         c.gridy = 1;
+        //loai bo vien
+        leaderBoardButton.setBorderPainted(false);
+        leaderBoardButton.setContentAreaFilled(false);
+        leaderBoardButton.setFocusPainted(false);
+        leaderBoardButton.setOpaque(false);
+
         add(leaderBoardButton, c);
-        //hien thi button ngay khi khoi tao
-        setVisible(true);
 
         //thuc hien action khi click vao button start
         startButton.addActionListener(e -> {
@@ -66,14 +76,6 @@ public class StartScreen extends JPanel {
         setVisible(true);
     }
 
-    //getter va setter
-    public Image getBackgroundImage() {
-        return backgroundImage;
-    }
-    public Image getForegroundImage() {
-        return foregroundImage;
-    }
-
     @Override
     public void paintComponent(Graphics g) {
 
@@ -83,7 +85,6 @@ public class StartScreen extends JPanel {
         super.paintComponent(g);
         g.drawImage(backgroundImage, 0, 0, null);
         g.drawImage(foregroundImage, 0, 0, null);
-        g.drawImage(new ImageIcon(getClass().getResource("/res/StartScreen.png")).getImage(), 0, 0, null);
     }
 
     public void setBackground(Graphics g) {

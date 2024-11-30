@@ -21,6 +21,10 @@ public class App {
         StartScreen startScreen = new StartScreen();
         frame.add(startScreen);
 
+        // Game game = new Game();
+        // frame.add(game);
+
+        // game.requestFocus();
         frame.pack();
         frame.setVisible(true);
     }

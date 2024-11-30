@@ -1,73 +1,83 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package GameObject;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.ArrayList;
-import java.util.Random;
+import java.awt.event.KeyEvent.*;
 import javax.swing.*;
+import java.util.Random;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.io.InputStream;
+import java.io.File;
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.awt.image.BufferedImage;
+import java.util.Calendar;
+import java.awt.font.FontRenderContext;
+import java.awt.font.TextLayout;
 import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
+import javax.imageio.ImageIO;
 
-public class Game extends JPanel implements ActionListener, KeyListener {
+public class Game extends JPanel implements ActionListener, KeyListener,MouseListener {
 
     int boardWidth = 500;
     int boardHeight = 500;
 
-    Image birdImage;
-    Image birdDieImage;
-    Image bottomPipeImage;
-    Image topPipeImage;
-    Image foregroundImage;
-    Image backgroundImage;
+    BufferedImage birdImage[] = new BufferedImage[3];
+    BufferedImage bottomPipeImage;
+    BufferedImage topPipeImage;
+    BufferedImage foregroundImage;
+    BufferedImage backgroundImage;
 
     Timer gameLoop;
     Timer placePipeTimer;
     boolean gameOver = false;
-    int score = 0;
-
+    double score = 0;
+    
+    public static Audio audio = new Audio();
+    
     //Bird
     int birdWidth = 45;
     int birdHeight = 32;
     int birdX = 200;
     int birdY = 150;
-    double rotation = 0.0;
     Bird bird;
 
     //Pipe
-    int pipeWidth = 66;
+    int pipeWidth = 70;
     int pipeHeight = 300;
     int pipeY = 0;
     int pipeX = boardWidth;
     ArrayList<Pipe> pipes;
     Random random = new Random();
 
+    
     //Physics
     int velocityX = -4;
-    int velocityY = 0;
-    int gravity = 8;
     int jumpStrength = -10;
-
-    //current screen
-    String currentScreen = "start";
-    String playerName = "";
-
-    StartScreen startScreen = new StartScreen();
+    
+    //game state
+    final static int MENU = 0;
+    final static int GAME = 1;
+    private int gameState = MENU;
 
     public Game() {
         setFocusable(true);
         setPreferredSize(new Dimension(boardWidth, boardHeight));
         addKeyListener(this);
-
-        birdImage = new ImageIcon(getClass().getResource("/res/bird.png")).getImage();
-        birdDieImage = new ImageIcon(getClass().getResource("/res/bird.png")).getImage();
-        topPipeImage = new ImageIcon(getClass().getResource("/res/pipe-south.png")).getImage();
-        bottomPipeImage = new ImageIcon(getClass().getResource("/res/pipe-north.png")).getImage();
-        foregroundImage = startScreen.getForegroundImage();
-        backgroundImage = startScreen.getBackgroundImage();
+        try {
+            birdImage[0] =  ImageIO.read(new File("/res/yellowBird1.png"));
+            birdImage[1] = ImageIO.read(new File("/res/yellowBird2.png"));
+            birdImage[2] = ImageIO.read(new File("/res/yellowBird3.png"));
+            topPipeImage = ImageIO.read(new File("/res/pipe-south.png"));
+            bottomPipeImage = ImageIO.read(new File("/res/pipe-north.png"));
+            foregroundImage = ImageIO.read(new File("/res/foreground.png"));
+            backgroundImage = ImageIO.read(new File("/res/background.png"));
+        } catch (IOException e) {
+        }
 
         bird = new Bird(birdX, birdY, birdWidth, birdHeight, birdImage);
         pipes = new ArrayList<>();
@@ -76,27 +86,27 @@ public class Game extends JPanel implements ActionListener, KeyListener {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // Code to be executed
-                // drawMenu();
                 placePipes();
             }
         });
         placePipeTimer.start();
 
-        gameLoop = new Timer(1000 / 60, this);
+        gameLoop = new Timer(1000/60, this);
         gameLoop.start();
     }
 
     public void paintComponent(Graphics g) {
-        g.setColor(Color.BLACK);
         super.paintComponent(g);
         draw(g);
+        
     }
 
     public void draw(Graphics g) {
+
         // Vẽ nền và nền đất
         g.drawImage(backgroundImage, 0, 0, null);
         g.drawImage(foregroundImage, 0, 0, null); // Đặt vị trí cho foreground nếu cần
-        g.drawImage(birdImage, birdX, birdY, birdWidth, birdHeight, null);
+    
 
         //pipes
         for (int i = 0; i < pipes.size(); i++) {
@@ -104,68 +114,71 @@ public class Game extends JPanel implements ActionListener, KeyListener {
             g.drawImage(pipe.img, pipe.x, pipe.y, pipe.width, pipe.height, null);
         }
         g.drawImage(foregroundImage, 0, 0, null); // Đặt vị trí cho foreground nếu cần
-
+        
+        bird.renderBird(g);
         //score
         g.setFont(new Font("Arial", Font.BOLD, 20));
         g.setColor(Color.WHITE);
         g.drawString("Score: " + score, 10, 20);
-    }
 
-    public void drawPlayerNameTexture() {
-        JPanel jp = new JPanel();
-        jp.setSize(200, 100);
-        jp.setLayout(new GridLayout(2, 1));
-        jp.setPreferredSize(new Dimension(300, 200));
-        jp.add(new JLabel("Enter your name: "));
-        jp.add(new TextField());
-        playerName = jp.getComponent(1).toString();
-        add(jp, BorderLayout.CENTER);
+        if (gameOver) {
+            g.setFont(new Font("Arial", Font.BOLD, 30));
+            g.setColor(Color.RED);
+            g.drawString("Game Over!", boardWidth / 2 - 80, boardHeight / 2);
+        }
     }
-
+    
+    public void drawMenu(Graphics g){
+//        g.drawImage(birdImage, birdX, birdY, this;
+     
+    }
+    
+    public void drawScore(){
+    
+    
+    }
+    
+    
     @Override
     public void actionPerformed(ActionEvent e) {
+//        if (bird.y>=390) {
+//            gameLoop.stop();
+//            placePipeTimer.stop();
+//        }
         move();
         repaint();
-        if (gameOver) {
-            gameLoop.stop();
-            placePipeTimer.stop();
-        }
-        
     }
 
     public void move() {
         if (!gameOver) {
-            velocityY += gravity;
-            birdY += velocityY;
-            bird.y = birdY;  // Cập nhật bird.y theo birdY
-            if (birdY >= 370) { // Kiểm tra nếu chim chạm đáy
-                birdY = 370; // Cố định vị trí khi chạm nền
+            bird.velocity += bird.gravity;
+            bird.y += bird.velocity;
+//            bird.y = birdY;  // Cập nhật bird.y theo birdY
+            if (bird.y >= 390) { // Kiểm tra nếu chim chạm đáy
+                bird.y = 390; // Cố định vị trí khi chạm nền
+                audio.hit();
+                gameLoop.stop();
+                placePipeTimer.stop();
                 gameOver = true; // Đặt game over nhưng không thay đổi gravity hay velocity
-                bird.img = birdDieImage;
+                
             }
-        }
+        
         for (int i = 0; i < pipes.size(); i++) {
             Pipe pipe = pipes.get(i);
             pipe.x += velocityX;
 
-            if (!pipe.passed && bird.x > pipe.x + pipe.width) {
+            if (!pipe.passed && bird.x > pipe.x + pipe.width && pipe.img == topPipeImage) {
                 score += 1;
                 pipe.passed = true;
+                audio.point();
             }
 
             if (collision(bird, pipe)) {
-                gameOver = true;
+                audio.hit();
+                gameOver=Boolean.TRUE;
             }
         }
-    }
-
-    public JPanel showLeaderBoard() {
-        JPanel jp = new JPanel();
-        
-        LeaderBoard lb = new LeaderBoard();
-        jp = lb.showLeaderBoard();
-        
-        return jp;
+        }
     }
 
     public void placePipes() {
@@ -182,13 +195,13 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     }
 
     public void resetGame() {
-        birdX = 200;           // Đặt lại vị trí X của con chim
-        birdY = 150;           // Đặt lại vị trí Y của con chim
-        velocityY = 0;
+        bird.x = 200;           // Đặt lại vị trí X của con chim
+        bird.y = 150;           // Đặt lại vị trí Y của con chim
+        bird.velocity = 0;
         pipes.clear();// Đặt lại vận tốc Y
-        gravity = 1;           // Đặt lại trọng lực (nếu có thay đổi)
+        bird.gravity=1;
         gameOver = false;      // Đặt lại trạng thái gameOver
-        bird.img = birdImage;
+//        bird.img = birdImage;
         score=0;// Đặt lại hình ảnh của chim
         repaint();             // Vẽ lại màn hình để làm mới giao diện
         gameLoop.start();
@@ -197,6 +210,9 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     }
 
     boolean collision(Bird a, Pipe b) {
+//        if(a.x>b.x && a.y<0){
+//            return true;
+//        }
         return a.x< b.x + b.width
                 && //a's top left corner doesn't reach b's top right corner
                 a.x + a.width > b.x
@@ -208,23 +224,30 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     
     
     
-    @Override
-    public void keyTyped(KeyEvent e) {
-    }
-
-    @Override
+    //Key Action
+    public void keyTyped(KeyEvent e) {}
+    public void keyReleased(KeyEvent e) {}
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_SPACE) {
             if (!gameOver) {
-                velocityY = jumpStrength;  // Tạo hiệu ứng nhảy khi game chưa kết thúc
+                audio.jump();
+                bird.velocity = jumpStrength;  // Tạo hiệu ứng nhảy khi game chưa kết thúc
             } else {
                 resetGame();  // Khởi động lại trò chơi khi game đã kết thúc
             }
         }
     }
 
-    @Override
-    public void keyReleased(KeyEvent e) {
+
+    // Mosuse Action
+    public void mouseClicked(MouseEvent e) {}
+    public void mouseReleased(MouseEvent e) {}
+    public void mouseEntered(MouseEvent e) {}
+    public void mouseExited(MouseEvent e) {}
+    
+    public void mousePressed(MouseEvent e) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
+    
     
 }
