@@ -6,8 +6,18 @@ import java.io.IOException;
 import javax.swing.*;
 
 public class StartScreen extends JPanel {
-    Image foregroundImage;
-    Image backgroundImage;
+    //khai bao anh nen
+    private Image foregroundImage;
+    private Image backgroundImage;
+    //khai bao panel chua button
+    private JPanel buttonPanel;
+    //khai bao cac button
+    private JButton startButton;
+    private JButton leaderBoardButton;
+    //khai bao leaderBoard
+    private LeaderBoard leaderBoard;
+    private Game game;
+
 
     public StartScreen() {
         //tao size cho panel
@@ -15,51 +25,23 @@ public class StartScreen extends JPanel {
         setSize(500, 500);
         setPreferredSize(new Dimension(500, 500));
 
-        //tao layout cho panel voi dong dau la tieu de dong 2 gom 2 button
-        setLayout(new FlowLayout());
-
-        //add anh flappy bird tittle vao
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        // tao icon cho frame
         ImageIcon icon = new ImageIcon(getClass().getResource("/res/flappybirdtitle.png"));
         JLabel label = new JLabel(icon);
-        add(label);
+        label.setAlignmentX(Component.CENTER_ALIGNMENT);
+        add(label, BorderLayout.EAST);
 
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new GridLayout(1, 2));
+        setButtonPanel();
 
-        //tao button start
-        JButton startButton = new JButton();
-        startButton.setIcon(new ImageIcon(getClass().getResource("/res/playbutton.png")));
-
-        //loai bo vien
-        startButton.setBorderPainted(false);
-        startButton.setContentAreaFilled(false);
-        startButton.setFocusPainted(false);
-        startButton.setOpaque(false);
-        
-        //add button vao panel
-        buttonPanel.add(startButton);
-
-        //tao button leaderboard
-        JButton leaderBoardButton = new JButton();
-        leaderBoardButton.setIcon(new ImageIcon(getClass().getResource("/res/leaderboardbutton.png")));
-
-        //loai bo vien
-        leaderBoardButton.setBorderPainted(false);
-        leaderBoardButton.setContentAreaFilled(false);
-        leaderBoardButton.setFocusPainted(false);
-        leaderBoardButton.setOpaque(false);
-        
-        //add button vao panel
-        buttonPanel.add(leaderBoardButton);
-        buttonPanel.setOpaque(false);
         add(buttonPanel);
 
         //thuc hien action khi click vao button start
         startButton.addActionListener(e -> {
-            Game game = new Game();
+            this.game = new Game();
             // lay frame hien tai
             JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
-            frame.getContentPane().removeAll();
+            buttonPanel.setVisible(false);
             frame.add(game);
             frame.pack();
             game.requestFocus();
@@ -67,14 +49,37 @@ public class StartScreen extends JPanel {
 
         //thuc hien action khi click vao button leaderboard
         leaderBoardButton.addActionListener(e -> {
-            LeaderBoard leaderBoard = new LeaderBoard();
-            JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
-            frame.getContentPane().removeAll();
-            frame.add(leaderBoard);
-            frame.pack();
+            this.leaderBoard = new LeaderBoard();
+            // lay frame hien tai
+            JFrame leaderBoardFrame = new JFrame();
+            // buttonPanel.setVisible(false);
+            leaderBoardFrame.setPreferredSize(new Dimension(400, 450));
+            leaderBoardFrame.add(leaderBoard);
+            leaderBoardFrame.pack();
+            leaderBoardFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            leaderBoardFrame.setVisible(true);
         });
 
         setVisible(true);
+    }
+
+    public void setButtonPanel() {
+
+        this.buttonPanel = new JPanel();
+        this.buttonPanel.setLayout(new GridLayout(1, 2));
+
+        //tao button start
+        this.startButton = createImageButton("/res/playbutton.png");
+        
+        //add button vao panel
+        buttonPanel.add(this.startButton);
+
+        //tao button leaderboard
+        this.leaderBoardButton = createImageButton("/res/leaderboardbutton.png");
+        
+        //add button vao panel
+        this.buttonPanel.add(this.leaderBoardButton);
+        this.buttonPanel.setOpaque(false);
     }
 
     @Override
@@ -89,15 +94,21 @@ public class StartScreen extends JPanel {
     }
 
     private JButton createImageButton(String imagePath) {
-        // Tạo ImageIcon từ đường dẫn hình ảnh
-        ImageIcon icon = new ImageIcon(getClass().getResource(imagePath));
         // Tạo JButton với ImageIcon
-        JButton button = new JButton(icon);
-        // Loại bỏ viền nút
-        button.setBorderPainted(false);
-        button.setContentAreaFilled(false);
-        button.setFocusPainted(false);
-        button.setOpaque(false);
+        JButton button = new JButton();
+        try {
+            // Tạo ImageIcon từ đường dẫn hình ảnh
+            ImageIcon icon = new ImageIcon(getClass().getResource(imagePath));
+            // Set icon cho button
+            button.setIcon(icon);
+            // Loại bỏ viền nút
+            button.setBorderPainted(false);
+            button.setContentAreaFilled(false);
+            button.setFocusPainted(false);
+            button.setOpaque(false);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return button;
     }
 }

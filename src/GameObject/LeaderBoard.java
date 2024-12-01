@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -19,29 +21,46 @@ public class LeaderBoard extends JPanel {
     private static ArrayList<Player> highScore = new ArrayList<>();
 
     public LeaderBoard() {
+
+        JPanel panel = new JPanel();
         // tao leaderboard
-        setLayout(new GridLayout(10, 1));
-        setPreferredSize(new Dimension(300, 400));
-        setBorder(BorderFactory.createLineBorder(Color.BLACK));
-        add(showLeaderBoard());
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+
+        JLabel label = new JLabel("Leaderboard");
+        panel.setPreferredSize(new Dimension(350, 400));
+        label.setFont(new Font("Arial", Font.BOLD, 30));
+        label.setAlignmentX(Component.CENTER_ALIGNMENT);
+        label.setForeground(Color.DARK_GRAY);
+        panel.add(label);
+
+
+        // doc file LeaderBoard.txt
+        setHighScore("D:\\sourceCode\\Flappy-bird-main\\src\\GameObject\\LeaderBoard.txt");
+
+        panel.setOpaque(false);
+        //show 10 nguoi choi cao nhat
+        panel.add(showLeaderBoard(), BorderLayout.CENTER);
+
+        panel.setVisible(true);
+        add(panel);
     }
 
-    @Override
-    public void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        g.drawImage(new ImageIcon(getClass().getResource("/res/LeaderBoard_Board_resize.png")).getImage(), 0, 0, null);
-    } 
-    
-    public void UpdateLeaderBoard(Player newHighScore) throws IOException {
+    public void setHighScore(String path) {
         // Logic for showing the leaderboard
-        Scanner sc = new Scanner(new File("D:\\sourceCode\\Flappy-bird-main\\src\\GameObject\\LeaderBoard.txt"));
+        try {
+        Scanner sc = new Scanner(new File(path));
 
         while(sc.hasNextLine()) {
             Player temp = new Player(sc.nextLine());
             highScore.add(temp);
         }
         sc.close();
-
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    }
+    
+    public void UpdateLeaderBoard(Player newHighScore) throws IOException {
         if(newHighScore.isBigger(highScore.get(9))) {
             if(newHighScore.isBigger(highScore.get(0))) {
                 highScore.add(0, newHighScore);
@@ -68,22 +87,36 @@ public class LeaderBoard extends JPanel {
     }
 
     public JPanel showLeaderBoard() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(10, 1));
-        panel.setPreferredSize(new Dimension(300, 400));
-        panel.setBackground(Color.WHITE);
-        panel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        JPanel highScorePanel = new JPanel();
+        highScorePanel.setLayout(new GridLayout(10, 3, 3, 10));
 
-        for (Player p : highScore) {
-            JLabel label = new JLabel(p.getNickName() + " " + p.getScore());
-            label.setFont(new Font("Arial", Font.BOLD, 20));
-            panel.add(label);
+        highScorePanel.setSize(300, 400);
+        highScorePanel.setOpaque(false);
+        highScorePanel.setBorder(null);
+
+        for (int i = 0; i < 10; i++) {
+            JLabel temp = new JLabel((i + 1) + ".");
+            temp.setFont(new Font("Arial", Font.BOLD, 20));
+            temp.setForeground(Color.DARK_GRAY);
+            highScorePanel.add(temp);
+
+            temp = new JLabel(highScore.get(i).getNickName());
+            temp.setFont(new Font("Arial", Font.BOLD, 20));
+            temp.setForeground(Color.DARK_GRAY);
+            highScorePanel.add(temp);
+            
+            temp = new JLabel(Integer.toString(highScore.get(i).getScore()));
+            temp.setFont(new Font("Arial", Font.BOLD, 20));
+            temp.setForeground(Color.DARK_GRAY);
+            highScorePanel.add(temp);
+
         }
-        
-        return panel;
+
+        return highScorePanel;
     }
 
     public boolean isHighScore(Player newHighScore) {
         return newHighScore.isBigger(highScore.get(9));
     }
+
 }

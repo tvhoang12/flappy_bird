@@ -4,6 +4,8 @@
  */
 package GameObject;
 
+import java.awt.CardLayout;
+
 import javax.swing.*;
 
 public class App {
@@ -12,7 +14,7 @@ public class App {
         int boardHeight = 500;
 
         JFrame frame = new JFrame("Flappy Bird");
-        // frame.setVisible(true);
+
         frame.setSize(boardWidth, boardHeight);
         frame.setLocationRelativeTo(null);
         frame.setResizable(false);
@@ -20,11 +22,9 @@ public class App {
 
         StartScreen startScreen = new StartScreen();
         frame.add(startScreen);
+        
+        startScreen.requestFocus();
 
-        // Game game = new Game();
-        // frame.add(game);
-
-        // game.requestFocus();
         frame.pack();
         frame.setVisible(true);
     }

@@ -22,7 +22,6 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 public class Game extends JPanel implements ActionListener, KeyListener,MouseListener {
-
     int boardWidth = 500;
     int boardHeight = 500;
 
@@ -103,12 +102,10 @@ public class Game extends JPanel implements ActionListener, KeyListener,MouseLis
     }
 
     public void draw(Graphics g) {
-
         // Vẽ nền và nền đất
         g.drawImage(backgroundImage, 0, 0, null);
         g.drawImage(foregroundImage, 0, 0, null); // Đặt vị trí cho foreground nếu cần
     
-
         //pipes
         for (int i = 0; i < pipes.size(); i++) {
             Pipe pipe = pipes.get(i);
@@ -135,7 +132,6 @@ public class Game extends JPanel implements ActionListener, KeyListener,MouseLis
     }
     
     public void drawScore(){
-    
     
     }
     
