@@ -1,7 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package GameObject;
 
 import java.awt.*;
@@ -20,24 +17,23 @@ import java.awt.geom.AffineTransform;
 
 public class Bird {
 
-    public int x;
-    public int y;
-    public int width;
-    public int height;
-    public boolean dead;
-    public int jumpDelay;
-
-    public BufferedImage[] sprites;
+    public int xBird;
+    public int yBird;
+    public final int widthBird = 45;
+    public final int heightBird = 32;
+    public int jumpStrength = -10;
+    private int startingBirdX = 200;
+    private int startingBirdY = 150;
+    private BufferedImage[] sprites;
     private static double currentFrame = 0;
     private boolean isAlive = true;
-    public double rotation = 0;
-    public double velocity = 0;
+    private double rotation = 0;
+    public double velocityY = 0;
     public double gravity = 1.0;
-    public Bird(int x, int y, int width, int height, BufferedImage[] s) {
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
+    
+    public Bird(int x, int y, BufferedImage[] s) {
+        this.xBird = x;
+        this.yBird = y;
         this.sprites = s;
     }
 
@@ -48,12 +44,18 @@ public class Bird {
     public void kill() {
         isAlive = false;
     }
-
+    
+    public void setGameStart(){
+        xBird = startingBirdX;
+        yBird = startingBirdY;
+    }
+     public void reHealth(){
+         isAlive = true;
+     }
     public  void renderBird(Graphics g) {
 
         // Calculate angle to rotate bird based on y-velocity
-        rotation = ((90 * (velocity + 25) / 25) - 90) * Math.PI / 180;
-        
+        rotation = ((90 * (velocityY + 25) / 25) - 90) * Math.PI / 180;
         
         rotation = Math.min(rotation, Math.PI / 2);
         rotation = Math.max(rotation, -Math.PI / 2);
@@ -61,8 +63,17 @@ public class Bird {
         // Increase the speed of rotation (adjust this factor for faster rotation)
         double rotationSpeed = 0.8;  // Factor to increase rotation speed
         rotation *= rotationSpeed;  // Apply the rotation speed factor
+        
+        if (!isAlive()) {
 
-        animate(g, sprites, x, y, 0.09, rotation);
+			// Drop bird on death
+			if (yBird < 385) {
+				velocityY += gravity;
+				yBird += (int) velocityY;
+			}
+
+	}
+        animate(g, sprites, xBird, yBird, 0.09, rotation);
     }
 
     public static void animate(Graphics g, BufferedImage[] sprites, int x, int y, double speed, double angle) {

@@ -38,7 +38,12 @@ public class StartScreen extends JPanel {
 
         //thuc hien action khi click vao button start
         startButton.addActionListener(e -> {
-            this.game = new Game();
+            try {
+                this.game = new Game();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+
             // lay frame hien tai
             JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
             buttonPanel.setVisible(false);

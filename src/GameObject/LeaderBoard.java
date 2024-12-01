@@ -103,12 +103,15 @@ public class LeaderBoard extends JPanel {
         for (int i = 0; i < 10; i++) {
             JLabel temp = new JLabel((i + 1) + ".");
             setLabel(temp);
+            highScorePanel.add(temp);
 
             temp = new JLabel(highScore.get(i).getNickName());
             setLabel(temp);
+            highScorePanel.add(temp);
             
             temp = new JLabel(Integer.toString(highScore.get(i).getScore()));
             setLabel(temp);
+            highScorePanel.add(temp);
         }
 
         return highScorePanel;
@@ -116,7 +119,7 @@ public class LeaderBoard extends JPanel {
 
     public void setLabel(JLabel label) {
         // cau hinh cho label
-        label.setFont(new Font("Arial", Font.BOLD, 30));
+        label.setFont(new Font("Arial", Font.BOLD, 20));
         label.setAlignmentX(Component.CENTER_ALIGNMENT);
         label.setForeground(Color.DARK_GRAY);
     }
