@@ -42,6 +42,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
     Timer gameLoop;
     Timer placePipeTimer;
     private int score = 0;
+    private int bestScore = 0;
     private String medal;
     private static Audio audio = new Audio();
 
@@ -62,13 +63,14 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
     final static int GAME = 1;
     private int gameState = MENU;
 
+    private GameOverScreen gameOverScreen;
     public Game() throws IOException {
         setFocusable(true);
         setPreferredSize(new Dimension(boardWidth, boardHeight));
         addKeyListener(this);
-
+        
         try {
-            InputStream is = new BufferedInputStream(new FileInputStream("/res/flappy-font.ttf"));
+            InputStream is = new BufferedInputStream(new FileInputStream("D:\\sourceCode\\Flappy-bird-main\\res\\flappy-font.ttf"));
             flappyFontBase = Font.createFont(Font.TRUETYPE_FONT, is);
 
             // Header and sub-header fonts
@@ -117,7 +119,13 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         super.paintComponent(g);
         draw(g);
         if(bird.isAlive()){
-            drawScore(g,score);
+            drawScore(g, this.score);
+        }else{
+            this.gameOverScreen = new GameOverScreen(this.score, this.bestScore);
+            this.gameOverScreen.setVisible(true);
+            revalidate();
+            repaint();
+            add(gameOverScreen);
         }
     }
 
@@ -136,13 +144,20 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
 
         bird.renderBird(g);
 
+        // if(!bird.isAlive()){
+        //     JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
+        //     frame.add(gameOverScreen);
+        //     frame.pack();
+        //     frame.setVisible(true);
+        //     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        // }
     }
 
-    public void drawMenuGameOver(Graphics g) {
-        g.drawImage(gameOverLabel, 140, 100,200,40, this);
-        g.drawImage(scoreBoard, 140, 100, this);
+    // public void drawMenuGameOver(Graphics g) {
+    //     g.drawImage(gameOverLabel, 140, 100,200,40, this);
+    //     g.drawImage(scoreBoard, 140, 100, this);
         
-    }
+    // }
     
     private boolean isTouching (Rectangle r) {
 		return r.contains(clickedPoint);
@@ -231,6 +246,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         bird.reHealth();
         pipes.clear();// Đặt lại vận tốc Y
         bird.gravity = 1;
+        bestScore = Math.max(score, bestScore);
         score = 0;// Đặt lại hình ảnh của chim
         repaint();             // Vẽ lại màn hình để làm mới giao diện
         gameLoop.start();
@@ -279,6 +295,8 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         if(bird.isAlive()){
             audio.jump();
             bird.velocityY = bird.jumpStrength;
+        }else{
+            resetGame();
         }
     }
 
