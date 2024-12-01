@@ -35,6 +35,7 @@ public class Game extends JPanel implements ActionListener, KeyListener,MouseLis
     Timer placePipeTimer;
     boolean gameOver = false;
     int score = 0;
+    int bestcore = 0;
     
     public static Audio audio = new Audio();
     
@@ -123,11 +124,11 @@ public class Game extends JPanel implements ActionListener, KeyListener,MouseLis
             g.setFont(new Font("Arial", Font.BOLD, 30));
             g.setColor(Color.RED);
             g.drawString("Game Over!", boardWidth / 2 - 80, boardHeight / 2);
+            this.bestcore = Math.max(this.bestcore, this.score);
         }
     }
     
     public void drawMenu(Graphics g){
-     
     }
     
     public void drawScore(){
