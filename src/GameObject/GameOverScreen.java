@@ -11,6 +11,11 @@ public class GameOverScreen extends JPanel {
     Image gameover;
     Image scoreboardImage;
 
+    private LeaderBoard leaderBoard;
+
+    private JPanel nameTextPanel;
+    private TextField nameText;
+
     // Medal images
     Image gold;
     Image silver;
@@ -21,6 +26,7 @@ public class GameOverScreen extends JPanel {
         this.bestScore = bestScore;
         setPreferredSize(new Dimension(500, 500)); // kích thước khung chung
         initComponents();
+        setOpaque(false); // Để bo qua hiển thị ảnh nền
     }
 
     private void initComponents() {
@@ -58,33 +64,26 @@ public class GameOverScreen extends JPanel {
 
         // Thêm ActionListener để xử lý sự kiện click
         restartButton.addActionListener(e -> {
-        // Chuyển sang class StartScreen
-        // Ví dụ này giả định rằng StartScreen là một JFrame hoặc JPanel
             JFrame currentFrame = (JFrame) SwingUtilities.getWindowAncestor(restartButton); // Lấy frame hiện tại
             if (currentFrame != null) {
-            currentFrame.dispose(); // Đóng frame hiện tại
+                currentFrame.dispose(); // Đóng frame hiện tại
             }
-            StartScreen startScreen = new StartScreen(); // Khởi tạo màn hình mới
-            startScreen.setVisible(true); // Hiển thị màn hình mới
+            // Tạo và hiển thị StartScreen mới
+            JFrame newFrame = new JFrame("Flappy Bird");
+            try {
+                Game startScreen = new Game(); // Khởi tạo màn hình mới
+                newFrame.add(startScreen);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            newFrame.pack();
+            newFrame.setLocationRelativeTo(null);
+            newFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            newFrame.setVisible(true);
         });
-
+            
         // Thêm nút vào giao diện
         add(restartButton);
-
-        // Thêm ActionListener để xử lý sự kiện click
-        restartButton.addActionListener(e -> {
-        // Chuyển sang class StartScreen
-        // Ví dụ này giả định rằng StartScreen là một JFrame hoặc JPanel
-        JFrame currentFrame = (JFrame) SwingUtilities.getWindowAncestor(restartButton); // Lấy frame hiện tại
-        if (currentFrame != null) {
-        currentFrame.dispose(); // Đóng frame hiện tại
-        }
-        StartScreen startScreen = new StartScreen(); // Khởi tạo màn hình mới
-        startScreen.setVisible(true); // Hiển thị màn hình mới
-    });
-
-        // Thêm nút vào giao diện
-        add(restartButton); 
 
         // Nút bảng xếp hạng
         ImageIcon leaderboardIcon = new ImageIcon(getClass().getResource("/res/leaderboardbutton.png"));
@@ -96,18 +95,36 @@ public class GameOverScreen extends JPanel {
 
         // Thêm ActionListener để xử lý sự kiện click
         leaderboardButton.addActionListener(e -> {
-        // Chuyển sang class LeaderboardScreen
-        // Giả định rằng LeaderboardScreen là một JFrame hoặc JPanel
-        JFrame currentFrame = (JFrame) SwingUtilities.getWindowAncestor(leaderboardButton); // Lấy frame hiện tại
-        if (currentFrame != null) {
-        currentFrame.dispose(); // Đóng frame hiện tại
-        }
-        LeaderBoard leaderboardScreen = new LeaderBoard(); // Khởi tạo màn hình mới
-        leaderboardScreen.setVisible(true); // Hiển thị màn hình mới
-    });
+            this.leaderBoard = new LeaderBoard();
+            // lay frame hien tai
+            JFrame leaderBoardFrame = new JFrame();
+            //tao size
+            leaderBoardFrame.setPreferredSize(new Dimension(400, 450));
+            //add leaderBoard vao frame va cai dat 1 so thuoc tinh
+            leaderBoardFrame.add(leaderBoard);
+            leaderBoardFrame.pack();
+            leaderBoardFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            leaderBoardFrame.setVisible(true);
+        });
 
         // Thêm nút vào giao diện
         add(leaderboardButton);
+
+        JButton addLeaderBoardButton = new JButton(new ImageIcon(getClass().getResource("/res/addtoleaderboard.png")));
+        addLeaderBoardButton.setBounds(startX + buttonWidth + buttonGap, 400, buttonWidth, buttonHeight);
+        addLeaderBoardButton.setContentAreaFilled(false);
+        addLeaderBoardButton.setBorderPainted(false);
+
+        addLeaderBoardButton.addActionListener(e -> {
+            // Thêm người chơi vào bảng xếp hạng)
+            this.nameTextPanel = new JPanel();
+            setTextField();
+            JFrame frame = new JFrame();
+            frame.setPreferredSize(new Dimension(300, 500));
+            frame.add(nameTextPanel);
+            frame.pack();
+            frame.setVisible(true);
+        });
     }
 
     @Override
@@ -115,19 +132,12 @@ public class GameOverScreen extends JPanel {
         super.paintComponent(g);
 
         // Vẽ nền (như các class trên chỉ thêm mỗi gameOver và scoreboardImage)
-        backgroundImage = new ImageIcon(getClass().getResource("/res/background.png")).getImage();
-        foregroundImage = new ImageIcon(getClass().getResource("/res/foreground.png")).getImage();
         gameover = new ImageIcon(getClass().getResource("/res/gameOverText.png")).getImage();
-        scoreboardImage = new ImageIcon(getClass().getResource("/res/scoreCard.png")).getImage();
 
         // Kích thước panel
         int panelWidth = getWidth();
 
-        // Vẽ hình nền
-        g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), null);
-        g.drawImage(foregroundImage, 0, 0, getWidth(), getHeight(), null);
-
-        // Vẽ chữ "Game Over" 
+        // Vẽ chữ "Game Over"
         int gameOverWidth = (int)(panelWidth * 0.7); // 70% chiều rộng panel
         int gameOverHeight = (int)((double)gameover.getHeight(null) / gameover.getWidth(null) * gameOverWidth);
         int gameOverX = (panelWidth - gameOverWidth) / 2;
@@ -139,8 +149,7 @@ public class GameOverScreen extends JPanel {
         int scoreboardX = (panelWidth - scoreboardWidth) / 2;
         int scoreboardY = 150;
         g.drawImage(scoreboardImage, scoreboardX, scoreboardY, scoreboardWidth, scoreboardHeight, null);
-        
-        
+
         // Chọn ảnh huân chương dựa trên điểm số
         Image medalImage = null;
         if (score >= bestScore) {
@@ -160,9 +169,18 @@ public class GameOverScreen extends JPanel {
             g.drawImage(medalImage, medalX, medalY, medalWidth, medalHeight, null);
         }
 
-        // Vẽ điểm số
-        
+        // Vẽ điểm số (bạn có thể thêm phần này nếu cần)
     }
+
+    public void setTextField() {
+        this.nameText = new TextField();
+        // Thêm textField vào panel
+        this.nameTextPanel.setLayout(new GridLayout(2, 1));
+        this.nameTextPanel.add(new JLabel("Enter your name:"));
+        this.nameTextPanel.add(this.nameText);
+        add(nameTextPanel);
+    }
+
     // public static void main(String[] args) {
     //     JFrame frame = new JFrame("Flappy Bird Game Over");
     //     GameOverScreen gameOverScreen = new GameOverScreen(10, 12);
