@@ -127,7 +127,6 @@ public class Game extends JPanel implements ActionListener, KeyListener,MouseLis
     }
     
     public void drawMenu(Graphics g){
-//        g.drawImage(birdImage, birdX, birdY, this;
      
     }
     

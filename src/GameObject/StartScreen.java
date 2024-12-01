@@ -52,8 +52,9 @@ public class StartScreen extends JPanel {
             this.leaderBoard = new LeaderBoard();
             // lay frame hien tai
             JFrame leaderBoardFrame = new JFrame();
-            // buttonPanel.setVisible(false);
+            //tao size
             leaderBoardFrame.setPreferredSize(new Dimension(400, 450));
+            //add leaderBoard vao frame va cai dat 1 so thuoc tinh
             leaderBoardFrame.add(leaderBoard);
             leaderBoardFrame.pack();
             leaderBoardFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -64,7 +65,7 @@ public class StartScreen extends JPanel {
     }
 
     public void setButtonPanel() {
-
+        //tao panel moi cho button panel
         this.buttonPanel = new JPanel();
         this.buttonPanel.setLayout(new GridLayout(1, 2));
 
@@ -84,24 +85,24 @@ public class StartScreen extends JPanel {
 
     @Override
     public void paintComponent(Graphics g) {
-
+        //tao background va foreground cho panel
         backgroundImage = new ImageIcon(getClass().getResource("/res/Background.png")).getImage();
         foregroundImage = new ImageIcon(getClass().getResource("/res/Foreground.png")).getImage();
-
+        //ve background va foreground
         super.paintComponent(g);
         g.drawImage(backgroundImage, 0, 0, null);
         g.drawImage(foregroundImage, 0, 0, null);
     }
 
     private JButton createImageButton(String imagePath) {
-        // Tạo JButton với ImageIcon
+        // tao button voi icon khong chua vien mac dinh cua nut
         JButton button = new JButton();
         try {
             // Tạo ImageIcon từ đường dẫn hình ảnh
             ImageIcon icon = new ImageIcon(getClass().getResource(imagePath));
             // Set icon cho button
             button.setIcon(icon);
-            // Loại bỏ viền nút
+            // Loại bỏ viền mac dinh nút
             button.setBorderPainted(false);
             button.setContentAreaFilled(false);
             button.setFocusPainted(false);
