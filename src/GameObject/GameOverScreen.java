@@ -18,6 +18,8 @@ public class GameOverScreen extends JPanel {
     private TextField nameText;
     private JPanel addLeaderBoardPanel;
     private JFrame addLeaderBoardFrame;
+
+    private JPanel scorePanel, buttonPanel;
     // Medal images
     Image gold;
     Image silver;
@@ -46,7 +48,10 @@ public class GameOverScreen extends JPanel {
 
         // Tải ảnh bảng điểm
         scoreboardImage = new ImageIcon(getClass().getResource("/res/scoreboard.png")).getImage();
+        //tao panel chua score
+        setScorePanel(scoreboardImage);
 
+        add(scorePanel);
         // Tải ảnh huân chương
         gold = new ImageIcon(getClass().getResource("/res/gold.png")).getImage();
         silver = new ImageIcon(getClass().getResource("/res/silver.png")).getImage();
@@ -66,8 +71,8 @@ public class GameOverScreen extends JPanel {
         // Vị trí X bắt đầu để căn giữa
         int startX = (panelWidth - totalButtonsWidth) / 2;
 
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new GridLayout(1, 3));
+        this.buttonPanel = new JPanel();
+        this.buttonPanel.setLayout(new GridLayout(1, 3));
 
         // Nút chơi lại
         ImageIcon restartIcon = new ImageIcon(getClass().getResource("/res/playbutton.png"));
@@ -98,10 +103,10 @@ public class GameOverScreen extends JPanel {
         });
             
         // Thêm nút vào giao diện
-        buttonPanel.add(restartButton);
+        this.buttonPanel.add(restartButton);
 
         // Nút bảng xếp hạng
-        ImageIcon leaderboardIcon = new ImageIcon(getClass().getResource("/res/leaderboardbutton.png"));
+        ImageIcon leaderboardIcon = new ImageIcon(getClass().getResource("D:\\sourceCode\\Flappy-bird-main\\res\\leaderboardbutton.png"));
         Image leaderboardImg = leaderboardIcon.getImage().getScaledInstance(buttonWidth, buttonHeight, Image.SCALE_SMOOTH);
         JButton leaderboardButton = new JButton(new ImageIcon(leaderboardImg));
         leaderboardButton.setBounds(startX + buttonWidth + buttonGap, 400, buttonWidth, buttonHeight);
@@ -123,7 +128,7 @@ public class GameOverScreen extends JPanel {
         });
 
         // Thêm nút vào giao diện
-        buttonPanel.add(leaderboardButton);
+        this.buttonPanel.add(leaderboardButton);
         //them nut add to leader board
         JButton addLeaderBoardButton = new JButton(new ImageIcon(getClass().getResource("/res/addtoleaderboard.png")));
         addLeaderBoardButton.setBounds(startX + buttonWidth + buttonGap, 450, buttonWidth, buttonHeight);
@@ -214,6 +219,9 @@ public class GameOverScreen extends JPanel {
 
         // Vẽ nền (như các class trên chỉ thêm mỗi gameOver và scoreboardImage)
         gameover = new ImageIcon(getClass().getResource("/res/gameOverText.png")).getImage();
+        scoreboardImage = new ImageIcon(getClass().getResource("/res/scoreboard.png")).getImage();
+        g.drawImage(backgroundImage, 0, 0, null);
+        g.drawImage(foregroundImage, 0, 0, null);
 
         // Kích thước panel
         int panelWidth = getWidth();
@@ -290,6 +298,49 @@ public class GameOverScreen extends JPanel {
         addLeaderBoardFrame.pack();
         addLeaderBoardFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         addLeaderBoardFrame.setVisible(true);
+    }
+
+    public void setScorePanel(Image scoreboard) {
+        this.scorePanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                g.drawImage(scoreboard, 0, 0, null);
+            }
+        };
+        //tao size moi cho score panel
+        this.scorePanel.setSize(500, 400);
+        this.scorePanel.setLayout(null);
+
+        //tao label hien thi diem so phien choi hien tai
+        JLabel scoreLabel = new JLabel(String.valueOf(this.score));
+        scoreLabel.setFont(new Font("Arial", Font.BOLD, 30));
+        scoreLabel.setForeground(Color.WHITE);
+
+        //tao label hien thi diem so cao nhat
+        JLabel bestScoreLabel = new JLabel(String.valueOf(this.bestScore));
+        bestScoreLabel.setFont(new Font("Arial", Font.BOLD, 30));
+        bestScoreLabel.setForeground(Color.WHITE);
+
+        //vi tri cua label diem so
+        scoreLabel.setBounds(300, 150, 100, 50);
+        bestScoreLabel.setBounds(300, 200, 100, 50);
+
+        //them label vao panel
+        this.scorePanel.setPreferredSize(new Dimension(500, 500));
+        this.scorePanel.setOpaque(false);
+        this.scorePanel.add(scoreLabel);
+        this.scorePanel.add(bestScoreLabel);
+        this.scorePanel.setVisible(true);
+    }
+
+    public static void main(String[] args) {
+        JFrame frame = new JFrame();
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.add(new GameOverScreen(10, 10));
+        frame.pack();
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
     }
 
 }
