@@ -2,6 +2,8 @@ package GameObject;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class GameOverScreen extends JPanel {
     private int score;
@@ -13,9 +15,9 @@ public class GameOverScreen extends JPanel {
 
     private LeaderBoard leaderBoard;
 
-    private JPanel nameTextPanel;
     private TextField nameText;
-
+    private JPanel addLeaderBoardPanel;
+    private JFrame addLeaderBoardFrame;
     // Medal images
     Image gold;
     Image silver;
@@ -29,11 +31,21 @@ public class GameOverScreen extends JPanel {
         setOpaque(false); // Để bo qua hiển thị ảnh nền
     }
 
+    public void setScore(int score) {
+        this.score = score;
+    }
+
+    public void setBestScore(int bestScore) {
+        this.bestScore = bestScore;
+    }
+
     private void initComponents() {
-        setLayout(null);
+        this.leaderBoard = new LeaderBoard();
+
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
         // Tải ảnh bảng điểm
-        scoreboardImage = new ImageIcon(getClass().getResource("/res/scoreCard.png")).getImage();
+        scoreboardImage = new ImageIcon(getClass().getResource("/res/scoreboard.png")).getImage();
 
         // Tải ảnh huân chương
         gold = new ImageIcon(getClass().getResource("/res/gold.png")).getImage();
@@ -54,8 +66,11 @@ public class GameOverScreen extends JPanel {
         // Vị trí X bắt đầu để căn giữa
         int startX = (panelWidth - totalButtonsWidth) / 2;
 
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new GridLayout(1, 3));
+
         // Nút chơi lại
-        ImageIcon restartIcon = new ImageIcon(getClass().getResource("/res/restart.png"));
+        ImageIcon restartIcon = new ImageIcon(getClass().getResource("/res/playbutton.png"));
         Image restartImg = restartIcon.getImage().getScaledInstance(buttonWidth, buttonHeight, Image.SCALE_SMOOTH);
         JButton restartButton = new JButton(new ImageIcon(restartImg));
         restartButton.setBounds(startX, 400, buttonWidth, buttonHeight);
@@ -83,7 +98,7 @@ public class GameOverScreen extends JPanel {
         });
             
         // Thêm nút vào giao diện
-        add(restartButton);
+        buttonPanel.add(restartButton);
 
         // Nút bảng xếp hạng
         ImageIcon leaderboardIcon = new ImageIcon(getClass().getResource("/res/leaderboardbutton.png"));
@@ -108,23 +123,89 @@ public class GameOverScreen extends JPanel {
         });
 
         // Thêm nút vào giao diện
-        add(leaderboardButton);
-
+        buttonPanel.add(leaderboardButton);
+        //them nut add to leader board
         JButton addLeaderBoardButton = new JButton(new ImageIcon(getClass().getResource("/res/addtoleaderboard.png")));
-        addLeaderBoardButton.setBounds(startX + buttonWidth + buttonGap, 400, buttonWidth, buttonHeight);
+        addLeaderBoardButton.setBounds(startX + buttonWidth + buttonGap, 450, buttonWidth, buttonHeight);
         addLeaderBoardButton.setContentAreaFilled(false);
         addLeaderBoardButton.setBorderPainted(false);
 
-        addLeaderBoardButton.addActionListener(e -> {
-            // Thêm người chơi vào bảng xếp hạng)
-            this.nameTextPanel = new JPanel();
-            setTextField();
-            JFrame frame = new JFrame();
-            frame.setPreferredSize(new Dimension(300, 500));
-            frame.add(nameTextPanel);
-            frame.pack();
-            frame.setVisible(true);
+        // Thiết lập ActionListener cho nút Add to Leaderboard
+        addLeaderBoardButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Tạo khung JFrame cho việc thêm tên vào Leaderboard
+                addLeaderBoardFrame = new JFrame("Add to Leaderboard");
+                addLeaderBoardPanel = new JPanel();
+                addLeaderBoardPanel.setLayout(new BoxLayout(addLeaderBoardPanel, BoxLayout.Y_AXIS));
+                addLeaderBoardPanel.setPreferredSize(new Dimension(300, 200));
+                addLeaderBoardPanel.setBackground(new Color(0, 0, 0, 150));
+
+                JLabel promptLabel = new JLabel("Enter your name:");
+                promptLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+                promptLabel.setForeground(Color.WHITE);
+                promptLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+                addLeaderBoardPanel.add(promptLabel);
+
+                addLeaderBoardPanel.add(Box.createVerticalStrut(10));
+
+                nameText = new TextField();
+                nameText.setMaximumSize(new Dimension(200, 30));
+                addLeaderBoardPanel.add(nameText);
+
+                addLeaderBoardPanel.add(Box.createVerticalStrut(20));
+
+                JButton submitButton = new JButton("Submit");
+                submitButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+                addLeaderBoardPanel.add(submitButton);
+
+                addLeaderBoardFrame.add(addLeaderBoardPanel);
+                addLeaderBoardFrame.pack();
+                addLeaderBoardFrame.setLocationRelativeTo(null);
+                addLeaderBoardFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                addLeaderBoardFrame.setVisible(true);
+
+                // Thiết lập ActionListener cho nút Submit
+                
+                submitButton.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        String name = nameText.getText().trim();
+                        if (name.length() > 0) {
+                            try {
+                                // Giả sử Player có constructor Player(String name, int score)
+                                leaderBoard.UpdateLeaderBoard(new Player(name + " " + score));
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                            }
+
+                            // Xóa tất cả các thành phần hiện tại trong khung Add Leaderboard
+                            addLeaderBoardFrame.getContentPane().removeAll();
+
+                            // Thêm JLabel thông báo thành công
+                            JLabel successLabel = new JLabel("Your name has been added to the leaderboard!");
+                            successLabel.setFont(new Font("Arial", Font.BOLD, 16));
+                            successLabel.setForeground(Color.GREEN);
+                            successLabel.setHorizontalAlignment(SwingConstants.CENTER);
+                            addLeaderBoardFrame.getContentPane().setLayout(new BorderLayout());
+                            addLeaderBoardFrame.getContentPane().add(successLabel, BorderLayout.CENTER);
+
+                            // Làm mới giao diện
+                            addLeaderBoardFrame.revalidate();
+                            addLeaderBoardFrame.repaint();
+                        } else {
+                            JOptionPane.showMessageDialog(addLeaderBoardFrame, "Please enter a valid name.", "Error", JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+                });
+            }
         });
+
+        buttonPanel.add(addLeaderBoardButton);
+        buttonPanel.setVisible(true);
+        buttonPanel.setOpaque(false);
+
+        add(buttonPanel);
     }
 
     @Override
@@ -173,20 +254,42 @@ public class GameOverScreen extends JPanel {
     }
 
     public void setTextField() {
-        this.nameText = new TextField();
-        // Thêm textField vào panel
-        this.nameTextPanel.setLayout(new GridLayout(2, 1));
-        this.nameTextPanel.add(new JLabel("Enter your name:"));
-        this.nameTextPanel.add(this.nameText);
-        add(nameTextPanel);
+        // Thêm textField vào frame moi
+            JFrame addLeaderBoardFrame = new JFrame();
+
+            addLeaderBoardFrame.setPreferredSize(new Dimension(400, 200));
+            this.addLeaderBoardPanel = new JPanel();
+            this.addLeaderBoardPanel.setPreferredSize(new Dimension(300, 200));
+
+            this.nameText = new TextField();
+            this.addLeaderBoardPanel.setLayout(new GridLayout(2, 2));
+            this.addLeaderBoardPanel.setSize(300, 200);
+            this.addLeaderBoardPanel.add(new JLabel("Enter your name:"));
+            this.addLeaderBoardPanel.add(this.nameText);
+            //them nut submit
+            JButton submitButton = new JButton("Submit");
+            this.addLeaderBoardPanel.add(submitButton);
+
+            addLeaderBoardFrame.add(this.addLeaderBoardPanel);
+        //khi nhan nut submit thi them vao leader board dong thoi mo ra 1 label thong bao
+            submitButton.addActionListener(e -> {
+                String name = nameText.getText();
+                if (name.length() > 0) {
+                    try {
+                        this.leaderBoard.UpdateLeaderBoard(new Player(name + " " + this.score));
+                    }
+                    catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                }
+                this.addLeaderBoardPanel.add(new JLabel("Your name has been added to the leaderboard!"));
+                
+            });
+
+        this.addLeaderBoardPanel.setOpaque(false);
+        addLeaderBoardFrame.pack();
+        addLeaderBoardFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        addLeaderBoardFrame.setVisible(true);
     }
 
-    // public static void main(String[] args) {
-    //     JFrame frame = new JFrame("Flappy Bird Game Over");
-    //     GameOverScreen gameOverScreen = new GameOverScreen(10, 12);
-    //     frame.add(gameOverScreen);
-    //     frame.pack();
-    //     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    //     frame.setVisible(true);
-    // }
 }

@@ -18,7 +18,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 public class LeaderBoard extends JPanel {
-    private static ArrayList<Player> highScore = new ArrayList<>();
+    private ArrayList<Player> highScore = new ArrayList<>();
 
     public LeaderBoard() {
         // tao panel
@@ -33,8 +33,8 @@ public class LeaderBoard extends JPanel {
         label.setForeground(Color.DARK_GRAY);
         panel.add(label);
 
-        // doc file LeaderBoard.txt
-        setHighScore("D:\\sourceCode\\Flappy-bird-main\\src\\GameObject\\LeaderBoard.txt");
+        setHighScore();
+        //cau hinh cho panel
         panel.setOpaque(false);
         //show 10 nguoi choi cao nhat
         panel.add(showLeaderBoard(), BorderLayout.CENTER);
@@ -43,20 +43,32 @@ public class LeaderBoard extends JPanel {
         add(panel);
     }
 
-    public void setHighScore(String path) {
-        // doc tu file leaderBoard.txt 10 nguoi choi co diem cao nhat va luu vao mang highScore
-        try {
-            // doc file LeaderBoard.txt
-            Scanner sc = new Scanner(new File(path));
+    public void setHighScore() {
+        if(highScore.size() != 10) {
+            //duong dan toi file LeaderBoard.txt
+            String path = "D:\\sourceCode\\Flappy-bird-main\\src\\GameObject\\LeaderBoard.txt";
+            // doc tu file leaderBoard.txt 10 nguoi choi co diem cao nhat va luu vao mang highScore
+            try {
+                // doc file LeaderBoard.txt
+                Scanner sc = new Scanner(new File(path));
 
-            while(sc.hasNextLine()) {
-                Player temp = new Player(sc.nextLine());
-                highScore.add(temp);
+                while(sc.hasNextLine()) {
+                    Player temp = new Player(sc.nextLine());
+                    highScore.add(temp);
+                }
+                sc.close();
+            } catch (Exception e) {
+                System.out.println(e);
             }
-            sc.close();
-        } catch (Exception e) {
-            System.out.println(e);
+            //neu chua co du 10 nguoi choi thi them vao nguoi choi mac dinh
+            for (int i = highScore.size(); i < 10; i++) {
+                highScore.add(new Player("Player" + (i + 1) + " 0"));
+            }
         }
+        else if(highScore.size() == 10) {
+            //neu da co 10 nguoi choi trong highscore arraylist thi khong lam gi
+        }
+        
     }
     
     public void UpdateLeaderBoard(Player newHighScore) throws IOException {
@@ -69,25 +81,27 @@ public class LeaderBoard extends JPanel {
             else {
                 //tim vi tri nguoi choi co diem cao nhat trong bang it diem hon nguoi choi moi
                 int i = 1;
-                while (highScore.get(i).isBigger(newHighScore) && i < 10) {
+                while (highScore.get(i).isBigger(newHighScore) && i < highScore.size()) {
                     i ++;
                 }
                 //them vao vi tri cua nguoi choi vua tim thay
                 highScore.add(i, newHighScore);
             }   
             //loai bo nguoi choi o vi tri cuoi cung(thu 11 do da them vao 1 nguoi choi moi)
-            highScore.remove(10);
+            if(highScore.size() > 10) highScore.remove(10);
         }
         //ghi lai vao file LeaderBoard.txt
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter("D:\\sourceCode\\Flappy-bird-main\\src\\GameObject\\LeaderBoard.txt"))) {
-            for(Player p : highScore) {
-                bw.write(p.toString());
-                bw.newLine();
-            }
+        saveHighScoreToFile("D:\\sourceCode\\Flappy-bird-main\\src\\GameObject\\LeaderBoard.txt");
+    }
+
+    public void saveHighScoreToFile(String path) throws IOException {
+        //ghi lai vao file LeaderBoard.txt
+        BufferedWriter writer = new BufferedWriter(new FileWriter(path));
+        for (int i = 0; i < 10; i++) {
+            writer.write(highScore.get(i).toString());
+            writer.newLine();
         }
-        catch(Exception e) {
-            System.out.println(e);
-        }
+        writer.close();
     }
 
     public JPanel showLeaderBoard() {

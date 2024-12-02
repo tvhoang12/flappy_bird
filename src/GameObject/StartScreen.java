@@ -15,7 +15,7 @@ public class StartScreen extends JPanel {
     private JButton startButton;
     private JButton leaderBoardButton;
     //khai bao leaderBoard
-    private LeaderBoard leaderBoard;
+    private LeaderBoard leaderBoard = new LeaderBoard();
     private Game game;
 
 
@@ -46,7 +46,9 @@ public class StartScreen extends JPanel {
 
             // lay frame hien tai
             JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
-            buttonPanel.setVisible(false);
+            //xoa toan bo thuoc tinh hien tai cua frame va chuyen sang game
+            frame.getContentPane().removeAll();
+            //add game vao frame va cai dat 1 so thuoc tinh
             frame.add(game);
             frame.pack();
             game.requestFocus();
@@ -116,5 +118,9 @@ public class StartScreen extends JPanel {
             e.printStackTrace();
         }
         return button;
+    }
+
+    public LeaderBoard getLeaderBoard() {
+        return leaderBoard;
     }
 }

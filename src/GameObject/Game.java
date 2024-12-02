@@ -63,7 +63,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
     final static int GAME = 1;
     private int gameState = MENU;
 
-    private GameOverScreen gameOverScreen;
+    private GameOverScreen gameOverScreen = new GameOverScreen(this.score, this.bestScore);
     public Game() throws IOException {
         setFocusable(true);
         setPreferredSize(new Dimension(boardWidth, boardHeight));
@@ -79,7 +79,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
             flappyMiniFont = flappyFontBase.deriveFont(Font.PLAIN, 15);
 
         } catch (Exception ex) {
-            ex.printStackTrace();
+            // ex.printStackTrace();
         }
 
         birdImage[0] = ImageIO.read(new File("D:\\sourceCode\\Flappy-bird-main\\res\\yellowBird1.png"));
@@ -121,7 +121,8 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         if(bird.isAlive()){
             drawScore(g, this.score);
         }else{
-            this.gameOverScreen = new GameOverScreen(this.score, this.bestScore);
+            this.gameOverScreen.setScore(score);
+            this.gameOverScreen.setBestScore(bestScore);
             this.gameOverScreen.setVisible(true);
             revalidate();
             repaint();
@@ -143,21 +144,8 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         g.drawImage(foregroundImage, 0, 0, this); // Đặt vị trí cho foreground nếu cần
 
         bird.renderBird(g);
-
-        // if(!bird.isAlive()){
-        //     JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
-        //     frame.add(gameOverScreen);
-        //     frame.pack();
-        //     frame.setVisible(true);
-        //     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        // }
     }
 
-    // public void drawMenuGameOver(Graphics g) {
-    //     g.drawImage(gameOverLabel, 140, 100,200,40, this);
-    //     g.drawImage(scoreBoard, 140, 100, this);
-        
-    // }
     
     private boolean isTouching (Rectangle r) {
 		return r.contains(clickedPoint);
@@ -248,6 +236,8 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         bird.gravity = 1;
         bestScore = Math.max(score, bestScore);
         score = 0;// Đặt lại hình ảnh của chim
+        //bo panel gameoverscreen
+        this.gameOverScreen.setVisible(false);
         repaint();             // Vẽ lại màn hình để làm mới giao diện
         gameLoop.start();
         placePipeTimer.start();
@@ -298,6 +288,13 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         }else{
             resetGame();
         }
+    }
+
+    public int getScore() {
+        return score;
+    }
+    public int getBestScore() {
+        return bestScore;
     }
 
 }
