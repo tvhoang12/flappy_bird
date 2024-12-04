@@ -18,10 +18,11 @@ import java.awt.font.TextLayout;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 
-public class Game extends JPanel implements ActionListener, KeyListener, MouseListener {
-
+public class Game extends JPanel implements ActionListener, KeyListener {
     // kích thước của JPanel
     int boardWidth = 500;
     int boardHeight = 500;
@@ -36,71 +37,72 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
     BufferedImage restartButton;
     BufferedImage addToLeaderBoardButton;
     BufferedImage scoreBoard;
-    BufferedImage [] scoreNum = new BufferedImage[10];
+    BufferedImage [] scoreNums = new BufferedImage[10];
+    BufferedImage goldMedal;
+    BufferedImage sliverMedal;
+    BufferedImage bronzeMedal;
+    BufferedImage platiumMedal;
 
-    // vòng lặp
+    String pathToResouce = "D:\\sourceCode\\Flappy-bird-main\\res\\";
+
+    // vòng lặp thời gian của game
     Timer gameLoop;
     Timer placePipeTimer;
+
+    // thống kế điểm
     private int score = 0;
     private int bestScore = 0;
-    private String medal;
+   
+    // khai báo âm thanh trong game
     private static Audio audio = new Audio();
 
     //Bird
     Bird bird;
     
-    private int distanceScore = 0;
+    // khai báo màn hình game khi trò chơi kết thúc
+    private GameOverScreen gameOverScreen;
+
     //Pipe
     ArrayList<Pipe> pipes;
     Random random = new Random();
-
-    //font
-    private Font flappyFontBase, flappyFontReal, flappyScoreFont, flappyMiniFont = null;
-    private Point clickedPoint = new Point(-1, -1);
     
     //Game State
-    final static int MENU = 0;
+    final static int START = 0;
     final static int GAME = 1;
-    private int gameState = MENU;
+    private int gameState = START;
 
-    private GameOverScreen gameOverScreen = new GameOverScreen(this.score, this.bestScore);
-    public Game() throws IOException {
+    public Game(int BestScore) throws IOException {
         setFocusable(true);
         setPreferredSize(new Dimension(boardWidth, boardHeight));
         addKeyListener(this);
-        
-        try {
-            InputStream is = new BufferedInputStream(new FileInputStream("D:\\sourceCode\\Flappy-bird-main\\res\\flappy-font.ttf"));
-            flappyFontBase = Font.createFont(Font.TRUETYPE_FONT, is);
 
-            // Header and sub-header fonts
-            flappyScoreFont = flappyFontBase.deriveFont(Font.PLAIN, 50);
-            flappyFontReal = flappyFontBase.deriveFont(Font.PLAIN, 20);
-            flappyMiniFont = flappyFontBase.deriveFont(Font.PLAIN, 15);
+        // lưu điểm tốt nhất từ màn trước đó khi thwucj hiện chơi lại
+        this.bestScore = BestScore;
 
-        } catch (Exception ex) {
-            // ex.printStackTrace();
+        // Load ảnh
+        birdImage[0] = ImageIO.read(new File(pathToResouce + "yellowBird1.png"));
+        birdImage[1] = ImageIO.read(new File(pathToResouce + "yellowBird2.png"));
+        birdImage[2] = ImageIO.read(new File(pathToResouce + "yellowBird3.png"));
+        topPipeImage = ImageIO.read(new File(pathToResouce + "pipe-south.png"));
+        bottomPipeImage = ImageIO.read(new File(pathToResouce + "pipe-north.png"));
+        foregroundImage = ImageIO.read(new File(pathToResouce + "foreground.png"));
+        backgroundImage = ImageIO.read(new File(pathToResouce + "background.png"));
+        restartButton = ImageIO.read(new File(pathToResouce + "restart.png"));
+        gameOverLabel = ImageIO.read(new File(pathToResouce + "gameOverText.png"));
+        addToLeaderBoardButton = ImageIO.read(new File(pathToResouce + "addtoleaderboard.png"));
+        scoreBoard = ImageIO.read(new File(pathToResouce + "scoreCard.png"));
+        for(int i = 0; i < 10; i++) {
+            scoreNums[i] = ImageIO.read(new File(pathToResouce + i + ".png"));
         }
-
-        birdImage[0] = ImageIO.read(new File("D:\\sourceCode\\Flappy-bird-main\\res\\yellowBird1.png"));
-        birdImage[1] = ImageIO.read(new File("D:\\sourceCode\\Flappy-bird-main\\res\\yellowBird2.png"));
-        birdImage[2] = ImageIO.read(new File("D:\\sourceCode\\Flappy-bird-main\\res\\yellowBird3.png"));
-        topPipeImage = ImageIO.read(new File("D:\\sourceCode\\Flappy-bird-main\\res\\pipe-south.png"));
-        bottomPipeImage = ImageIO.read(new File("D:\\sourceCode\\Flappy-bird-main\\res\\pipe-north.png"));
-        foregroundImage = ImageIO.read(new File("D:\\sourceCode\\Flappy-bird-main\\res\\foreground.png"));
-        backgroundImage = ImageIO.read(new File("D:\\sourceCode\\Flappy-bird-main\\res\\background.png"));
-        restartButton = ImageIO.read(new File("D:\\sourceCode\\Flappy-bird-main\\res\\restart.png"));
-        gameOverLabel = ImageIO.read(new File("D:\\sourceCode\\Flappy-bird-main\\res\\gameOverText.png"));
-        addToLeaderBoardButton = ImageIO.read(new File("D:\\sourceCode\\Flappy-bird-main\\res\\addtoleaderboard.png"));
-        scoreBoard = ImageIO.read(new File("D:\\sourceCode\\Flappy-bird-main\\res\\scoreCard.png"));
-        for(int i = 0; i < 10; i++){
-            scoreNum[i] = ImageIO.read(new File("D:\\sourceCode\\Flappy-bird-main\\res\\" + i + ".png"));
-        }
-        
+        goldMedal = ImageIO.read(new File(pathToResouce + "gold.png"));
+        sliverMedal = ImageIO.read(new File(pathToResouce + "silver.png"));
+        bronzeMedal = ImageIO.read(new File(pathToResouce + "bronze.png"));
+        platiumMedal = ImageIO.read(new File(pathToResouce + "platinum.png"));
         
         bird = new Bird(200, 150, birdImage);
         pipes = new ArrayList<>();
 
+        // sau 1,5 giây sẽ tạo 1 cặp ống mới
         placePipeTimer = new Timer(1500, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -110,6 +112,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         });
         placePipeTimer.start();
 
+        // Tạo vòng lặp thời gian cho game ở mứcc 60 khung hình trên giây
         gameLoop = new Timer(1000 / 60, this);
         gameLoop.start();
     }
@@ -118,14 +121,19 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         draw(g);
-        if(bird.isAlive()){
-            drawScore(g, this.score);
-        }else{
-            this.gameOverScreen.setScore(score);
-            this.gameOverScreen.setBestScore(bestScore);
+        if(bird.isAlive()){ // vẽ điểm trong thời gian thực nếu con chim còn sống
+            drawScore(g,score,240,40);
+        } else {
+            if(this.score > this.bestScore) {
+                this.bestScore = this.score;
+            }
+            try {
+                this.gameOverScreen = new GameOverScreen(this.score, this.bestScore);
+            } catch (IOException ex) {
+            }
             this.gameOverScreen.setVisible(true);
-            revalidate();
-            repaint();
+            revalidate();// thực hiện bố trị lại các thành phần trong panel
+            repaint();// vẽ lại giao diện người dùng
             add(gameOverScreen);
         }
     }
@@ -136,44 +144,40 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         g.drawImage(backgroundImage, 0, 0, this);
         g.drawImage(foregroundImage, 0, 0, this); // Đặt vị trí cho foreground nếu cần
 
-        //pipes
+        //vẽ các ống
         for (int i = 0; i < pipes.size(); i++) {
             Pipe pipe = pipes.get(i);
             g.drawImage(pipe.img, pipe.x, pipe.y, pipe.widthPipe, pipe.heightPipe, this);
         }
         g.drawImage(foregroundImage, 0, 0, this); // Đặt vị trí cho foreground nếu cần
 
+        // vẽ Bird
         bird.renderBird(g);
     }
-
     
-    private boolean isTouching (Rectangle r) {
-		return r.contains(clickedPoint);
-    }
-    
-    public void drawScore(Graphics g, int score) {
+    // vẽ điểm số với các ảnh chữ số cho trước
+    public void drawScore(Graphics g, int score,int x, int y) {
     String scoreString = String.valueOf(score);
-    int xPos = 240; // Vị trí bắt đầu
     for (int i = 0; i < scoreString.length(); i++) {
         String digit = String.valueOf(scoreString.charAt(i));
         BufferedImage digitImage = getDigitImage(digit);  // Hàm lấy ảnh tương ứng với từng chữ số
-        g.drawImage(digitImage, xPos, 40, this);
-        xPos += 15; // Khoảng cách giữa các chữ số
+        g.drawImage(digitImage, x, y, this);
+        x += 15; // Khoảng cách giữa các chữ số
     }
 }
-
+    //phân tích điểm để lấy ảnh tương ứng
     private BufferedImage getDigitImage(String digit) {
-        return scoreNum[Integer.parseInt(digit)];
-    }
+        return scoreNums[Integer.parseInt(digit)];
+}
 
-
-
+    // phương thức được gọi sau mỗi 1 chu kì 1000/60 giây để tạo chuyển động mượt mà
     @Override
     public void actionPerformed(ActionEvent e) {
         move();
         repaint();
     }
 
+    // phương thức để di chuyển đối tượng Bird và các cột trong game
     public void move() {
         if (bird.isAlive()) {
             bird.velocityY += bird.gravity;
@@ -185,8 +189,6 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
                 audio.hit();
                 gameLoop.stop();
                 placePipeTimer.stop();
-                
-
             }
 
             for (int i = 0; i < pipes.size(); i++) {
@@ -194,10 +196,10 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
                 pipe.movePipe();
 
                 if (!pipe.passed && bird.xBird > pipe.x + pipe.widthPipe && pipe.img == topPipeImage) {
-                    if(!pipe.passed){
-                    score += 1;
-                    pipe.passed = true;
-                    audio.point();
+                    if(!pipe.passed) {
+                        score += 1;
+                        pipe.passed = true;
+                        audio.point();
                     }
                 }
 
@@ -214,6 +216,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         }
     }
 
+    // thiết lập vị trí của ống
     public void placePipes() {
         int randomPipeY = (int) (0 - Pipe.heightPipe / 4 - Math.random() * (Pipe.heightPipe / 2));
         int openingSpace = boardHeight / 4;
@@ -227,24 +230,24 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         pipes.add(bottomPipe);
     }
 
+    //reset game khi game kết thúc
     public void resetGame() {
         bird.xBird = 200;           // Đặt lại vị trí X của con chim
         bird.yBird = 150;           // Đặt lại vị trí Y của con chim
-        bird.velocityY = 0;
-        bird.reHealth();
-        pipes.clear();// Đặt lại vận tốc Y
-        bird.gravity = 1;
-        bestScore = Math.max(score, bestScore);
+        bird.velocityY = 0;         // Đặt lại vận tốc Y
+        bird.reHealth();            // Đặt lại trạng thái sống của con chim
+        pipes.clear();              // Xóa các ống
+        bird.gravity = 1;           // Đặt lại gia tốc
         score = 0;// Đặt lại hình ảnh của chim
-        //bo panel gameoverscreen
-        this.gameOverScreen.setVisible(false);
         repaint();             // Vẽ lại màn hình để làm mới giao diện
-        gameLoop.start();
-        placePipeTimer.start();
+        gameLoop.start();       // Bắt đầu vòng lặp game
+        placePipeTimer.start();     // Bắt đầu vòng lặp tạo ống
+
     }
 
+    // điều kiện va chạm
     boolean collision(Bird a, Pipe b) {
-        if (a.xBird > b.x && a.yBird < 0) {
+        if (a.xBird > b.x && a.yBird < 0) { // không cho chim bay quá
             return true;
         }
         return a.xBird < b.x + b.widthPipe
@@ -255,8 +258,9 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
                 && //a's top left corner doesn't reach b's bottom left corner
                 a.yBird + a.heightBird > b.y;    //a's bottom left corner passes b's top left corner
     }
+    
 
-    //Key Action
+    //hành động cho Bird bay lên khi nhấn phím space
     public void keyTyped(KeyEvent e) {}
     public void keyReleased(KeyEvent e) {}
 
@@ -265,36 +269,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
             if (bird.isAlive()) {
                 audio.jump();
                 bird.velocityY = bird.jumpStrength;  // Tạo hiệu ứng nhảy khi game chưa kết thúc
-            } else {
-                resetGame();  // Khởi động lại trò chơi khi game đã kết thúc
             }
         }
     }
-
-    // Mosuse Action
-    public void mouseClicked(MouseEvent e) {}
-
-    public void mouseReleased(MouseEvent e) {}
-
-    public void mouseEntered(MouseEvent e) {}
-
-    public void mouseExited(MouseEvent e) {}
-
-    public void mousePressed(MouseEvent e) {
-        clickedPoint = e.getPoint();
-        if(bird.isAlive()){
-            audio.jump();
-            bird.velocityY = bird.jumpStrength;
-        }else{
-            resetGame();
-        }
-    }
-
-    public int getScore() {
-        return score;
-    }
-    public int getBestScore() {
-        return bestScore;
-    }
-
 }

@@ -1,8 +1,10 @@
 package GameObject;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class Player {
+public class Player implements Serializable {
+    private static final long serialVersionUID = 1L;
     private int score;
     private String nickName;
     public Player() {}
@@ -27,22 +29,5 @@ public class Player {
     @Override
     public String toString() {
         return nickName + " " + score;
-    }
-
-    public int compareTo(Player p) {
-        return -Integer.compare(p.score, score);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null || getClass() != obj.getClass()) return false;
-        Player player = (Player) obj;
-        return score == player.score && nickName.equals(player.nickName);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(nickName, score);
     }
 }

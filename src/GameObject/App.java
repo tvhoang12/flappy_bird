@@ -4,8 +4,6 @@
  */
 package GameObject;
 
-import java.awt.CardLayout;
-
 import javax.swing.*;
 
 public class App {

@@ -39,7 +39,7 @@ public class StartScreen extends JPanel {
         //thuc hien action khi click vao button start
         startButton.addActionListener(e -> {
             try {
-                this.game = new Game();
+                this.game = new Game(0);
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -109,11 +109,9 @@ public class StartScreen extends JPanel {
             ImageIcon icon = new ImageIcon(getClass().getResource(imagePath));
             // Set icon cho button
             button.setIcon(icon);
-            // Loại bỏ viền mac dinh nút
+            // // Loại bỏ viền mac dinh nút
             button.setBorderPainted(false);
             button.setContentAreaFilled(false);
-            button.setFocusPainted(false);
-            button.setOpaque(false);
         } catch (Exception e) {
             e.printStackTrace();
         }

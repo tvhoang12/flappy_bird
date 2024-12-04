@@ -17,7 +17,7 @@ public class GameOverScreen extends JPanel {
     Image gameover;
     Image scoreboardImage;
     BufferedImage [] scoreNums = new BufferedImage[10];
-    private LeaderBoard leaderBoard;
+    private LeaderBoard leaderBoard = new LeaderBoard();
     private TextField nameText;
     private JPanel addLeaderBoardPanel;
     private JFrame addLeaderBoardFrame;
@@ -43,11 +43,11 @@ public class GameOverScreen extends JPanel {
         scoreboardImage = new ImageIcon(getClass().getResource("/res/scoreCard.png")).getImage();
         // Tải ảnh số
         for(int i = 0; i < 10; i++) {
-            scoreNums[i] = ImageIO.read(new File("/res/" + i + ".png"));
+            scoreNums[i] = ImageIO.read(new File("D:\\sourceCode\\Flappy-bird-main\\res\\" + i + ".png"));
         }
         
         // Tải ảnh huân chương//
-        gold = new ImageIcon(getClass().getResource("/resgold.png")).getImage();
+        gold = new ImageIcon(getClass().getResource("/res/gold.png")).getImage();
         silver = new ImageIcon(getClass().getResource("/res/silver.png")).getImage();
         bronze = new ImageIcon(getClass().getResource("/res/bronze.png")).getImage();
         platinum = new ImageIcon(getClass().getResource("/res/platinum.png")).getImage();
@@ -65,23 +65,22 @@ public class GameOverScreen extends JPanel {
             JFrame currentFrame = (JFrame) SwingUtilities.getWindowAncestor(restartButton); // Lấy frame hiện tại
             if (currentFrame != null) {
                 currentFrame.dispose(); // Đóng frame hiện tại
+                try {
+                    // Tạo một frame mới để bắt đầu game mới
+                    currentFrame = new JFrame("Flappy Bird");
+                    currentFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                    currentFrame.setResizable(false);
+                    currentFrame.add(new Game(this.bestScore));
+                    currentFrame.pack();
+                    currentFrame.setLocationRelativeTo(null);
+                    currentFrame.setVisible(true);
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
             }
-            // Tạo và hiển thị StartScreen mới
-            JFrame newFrame = new JFrame("Flappy Bird");
-            try {
-                Game startScreen = new Game(); // Khởi tạo màn hình mới
-                newFrame.add(startScreen);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-            newFrame.pack();
-            newFrame.setLocationRelativeTo(null);
-            newFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            newFrame.setVisible(true);
         });   
         // Thêm nút vào giao diện
         add(restartButton);
-
         
         /*Nút xem bảng điểm*/
         ImageIcon leaderboardIcon = new ImageIcon(getClass().getResource("/res/leaderboardbutton.png"));
@@ -160,7 +159,8 @@ public class GameOverScreen extends JPanel {
                         String name = nameText.getText().trim();
                         if (name.length() > 0) {
                             try {
-                                // Giả sử Player có constructor Player(String name, int score)
+                                // Thêm tên và điểm số vào Leaderboard
+                                LeaderBoard leaderBoard = new LeaderBoard();
                                 leaderBoard.UpdateLeaderBoard(new Player(name + " " + score));
                             } catch (Exception ex) {
                                 ex.printStackTrace();
@@ -243,43 +243,4 @@ public class GameOverScreen extends JPanel {
     return scoreNums[Integer.parseInt(digit)];
     
 }
-    public void setTextField() {
-        // Thêm textField vào frame moi
-            JFrame addLeaderBoardFrame = new JFrame();
-
-            addLeaderBoardFrame.setPreferredSize(new Dimension(400, 200));
-            this.addLeaderBoardPanel = new JPanel();
-            this.addLeaderBoardPanel.setPreferredSize(new Dimension(300, 200));
-
-            this.nameText = new TextField();
-            this.addLeaderBoardPanel.setLayout(new GridLayout(2, 2));
-            this.addLeaderBoardPanel.setSize(300, 200);
-            this.addLeaderBoardPanel.add(new JLabel("Enter your name:"));
-            this.addLeaderBoardPanel.add(this.nameText);
-            //them nut submit
-            JButton submitButton = new JButton("Submit");
-            this.addLeaderBoardPanel.add(submitButton);
-
-            addLeaderBoardFrame.add(this.addLeaderBoardPanel);
-        //khi nhan nut submit thi them vao leader board dong thoi mo ra 1 label thong bao
-            submitButton.addActionListener(e -> {
-                String name = nameText.getText();
-                if (name.length() > 0) {
-                    try {
-                        this.leaderBoard.UpdateLeaderBoard(new Player(name + " " + this.score));
-                    }
-                    catch (Exception ex) {
-                        ex.printStackTrace();
-                    }
-                }
-                this.addLeaderBoardPanel.add(new JLabel("Your name has been added to the leaderboard!"));
-                
-            });
-
-        this.addLeaderBoardPanel.setOpaque(false);
-        addLeaderBoardFrame.pack();
-        addLeaderBoardFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        addLeaderBoardFrame.setVisible(true);
-    }
-
 }
