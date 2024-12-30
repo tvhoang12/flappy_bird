@@ -17,7 +17,7 @@ public class GameOverScreen extends JPanel {
     Image gameover;
     Image scoreboardImage;
     BufferedImage [] scoreNums = new BufferedImage[10];
-    private LeaderBoard leaderBoard = new LeaderBoard();
+    public LeaderBoard leaderBoard = new LeaderBoard();
     private TextField nameText;
     private JPanel addLeaderBoardPanel;
     private JFrame addLeaderBoardFrame;
@@ -159,8 +159,7 @@ public class GameOverScreen extends JPanel {
                         String name = nameText.getText().trim();
                         if (name.length() > 0) {
                             try {
-                                // Thêm tên và điểm số vào Leaderboard
-                                LeaderBoard leaderBoard = new LeaderBoard();
+                                // Thêm tên và điểm số vào Leaderboar
                                 leaderBoard.UpdateLeaderBoard(new Player(name + " " + score));
                             } catch (Exception ex) {
                                 ex.printStackTrace();

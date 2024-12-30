@@ -3,11 +3,10 @@ package GameObject;
 import java.io.Serializable;
 import java.util.Objects;
 
-public class Player implements Serializable {
-    private static final long serialVersionUID = 1L;
+public class Player {
     private int score;
     private String nickName;
-    public Player() {}
+    
     public Player(String info) {
         String [] in = info.split(" ");
         this.nickName = in[0];

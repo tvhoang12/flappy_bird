@@ -1,19 +1,17 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package GameObject;
 
 import java.awt.*;
 import java.io.*;
+// import java.util.File;
 import java.util.ArrayList;
+import java.util.Scanner;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 public class LeaderBoard extends JPanel {
     private ArrayList<Player> highScore = new ArrayList<>();
-    private String pathToSaveFile = "D:\\sourceCode\\Flappy-bird-main\\src\\GameObject\\LeaderBoard.txt";
 
     public LeaderBoard() {
         // tao panel
@@ -38,22 +36,30 @@ public class LeaderBoard extends JPanel {
         add(panel);
     }
 
+    
     public void setHighScore() {
         //doc du lieu tu file LeaderBoard.txt
         try {
-            ObjectInputStream reader = new ObjectInputStream(new FileInputStream(pathToSaveFile));
-
-            this.highScore = (ArrayList<Player>) reader.readObject();
-            reader.close();
-        } catch (IOException | ClassNotFoundException e) {
-            this.highScore = new ArrayList<>();
+        Scanner sc = new Scanner(new File("D:\\sourceCode\\Flappy-bird-main\\src\\GameObject\\LeaderBoard.txt"));
+        while (sc.hasNextLine()) {
+            highScore.add(new Player(sc.nextLine()));
+        }
+        sc.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         }
     }
     
-    public void UpdateLeaderBoard(Player newHighScore) throws IOException {
-        if(highScore.size() < 10) {
-            highScore.add(newHighScore);
-            highScore.sort((a, b) -> b.getScore() - a.getScore());
+    public void UpdateLeaderBoard(Player newHighScore) {
+        if(highScore.size() < 10 || highScore == null) {
+            
+            for(int i = 0; i < highScore.size(); i++) {
+                if(newHighScore.isBigger(highScore.get(i))) {
+                    highScore.add(i, newHighScore);
+                    break;
+                }
+            }
+            
         }
         else {
             // cap nhat leader board khi co nguoi choi moi co diem cao hon nguoi choi o vi tri cuoi cung
@@ -76,89 +82,54 @@ public class LeaderBoard extends JPanel {
             }
         }   
         //ghi lai vao file LeaderBoard.txt
-        saveHighScoreToFile(pathToSaveFile);
+        try {
+        saveHighScore("D:\\sourceCode\\Flappy-bird-main\\src\\GameObject\\LeaderBoard.txt");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    public void saveHighScoreToFile(String path) throws IOException {
-        //ghi lai vao file LeaderBoard.txt
-        ObjectOutputStream writer = new ObjectOutputStream(new FileOutputStream(path));
-        writer.writeObject(highScore);
-        writer.close();
+    public void saveHighScore(String path) throws IOException {
+        // D:\sourceCode\Flappy-bird-main\src\GameObject\LeaderBoard.txt
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(path))) {
+            for (Player player : highScore) {
+                writer.write(player.toString());
+                writer.newLine();
+            }
+        }
     }
 
     public JPanel showLeaderBoard() {
-        // hien thi 10 nguoi choi co diem cao nhat
-        //tao 1 panel moi chua leader board
-        JPanel highScorePanel = new JPanel();
-        highScorePanel.setLayout(new GridLayout(10, 3, 3, 10));
-        //cau hinh cho panel
-        highScorePanel.setSize(300, 400);
-        highScorePanel.setOpaque(false);
-        highScorePanel.setBorder(null);
-        //neu so nguoi choi co diem cao nhat nho hon 10 thi hien thi so nguoi choi do
-        if(highScore.size() < 10) {
-            //hien thi so nguoi choi dang chua trong leaderboard.txt
-            for(int i = 0; i < highScore.size(); i++) {
-                JLabel temp = new JLabel((i + 1) + ".");
-                setLabel(temp);
-                highScorePanel.add(temp);
-
-                temp = new JLabel(highScore.get(i).getNickName());
-                setLabel(temp);
-                highScorePanel.add(temp);
-                
-                temp = new JLabel(Integer.toString(highScore.get(i).getScore()));
-                setLabel(temp);
-                highScorePanel.add(temp);
-            }
-            //nhung vi tr con lai trong danh sach hien thi voi ten <empty> va diem la ...
-            for (int i = highScore.size(); i < 10; i++) {
-                JLabel temp = new JLabel((i + 1) + ".");
-                setLabel(temp);
-                highScorePanel.add(temp);
-
-                temp = new JLabel("<empty>");
-                setLabel(temp);
-                highScorePanel.add(temp);
-                    
-                temp = new JLabel("...");
-                setLabel(temp);
-                highScorePanel.add(temp);
-            }
-        }   
-        else if(highScore.size() == 0) {
-            //neu chua co nguoi choi nao thi hien thi <emptyPlayer> va diem la ...
-            for(int i = 0; i < 10; i++) {
-                JLabel temp = new JLabel((i + 1) + ".");
-                setLabel(temp);
-                highScorePanel.add(temp);
-
-                temp = new JLabel("<emptyPlayer>");
-                setLabel(temp);
-                highScorePanel.add(temp);
-                
-                temp = new JLabel("...");
-                setLabel(temp);
-                highScorePanel.add(temp);
+        // Tạo 1 panel mới chứa leaderboard
+        JPanel highScorePanel = new JPanel(); // Đặt layout mặc định
+        
+        if (highScore == null || highScore.size() == 0) {
+            // Nếu không có dữ liệu
+            highScorePanel.setLayout(new BoxLayout(highScorePanel, BoxLayout.Y_AXIS));
+            JLabel temp = new JLabel("No data");
+            temp.setAlignmentX(Component.CENTER_ALIGNMENT);
+            temp.setFont(new Font("Arial", Font.BOLD, 50));
+            temp.setForeground(Color.DARK_GRAY);
+            highScorePanel.add(temp);
+        } else {
+            int numPlayers = Math.min(highScore.size(), 10); // Hiển thị tối đa 10 người chơi
+            highScorePanel.setLayout(new GridLayout(numPlayers, 3, 10, 10)); // Đặt layout theo số lượng người chơi
+            
+            for (int i = 0; i < numPlayers; i++) {
+                // Hiển thị từng người chơi
+                JLabel rankLabel = new JLabel((i + 1) + ".");
+                setLabel(rankLabel);
+                highScorePanel.add(rankLabel);
+    
+                JLabel nameLabel = new JLabel(highScore.get(i).getNickName());
+                setLabel(nameLabel);
+                highScorePanel.add(nameLabel);
+    
+                JLabel scoreLabel = new JLabel(Integer.toString(highScore.get(i).getScore()));
+                setLabel(scoreLabel);
+                highScorePanel.add(scoreLabel);
             }
         }
-        else {
-            //hien thi 10 nguoi choi co diem cao nhat tu file
-            for (int i = 0; i < 10; i++) {
-                JLabel temp = new JLabel((i + 1) + ".");
-                setLabel(temp);
-                highScorePanel.add(temp);
-
-                temp = new JLabel(highScore.get(i).getNickName());
-                setLabel(temp);
-                highScorePanel.add(temp);
-                
-                temp = new JLabel(Integer.toString(highScore.get(i).getScore()));
-                setLabel(temp);
-                highScorePanel.add(temp);
-            }
-        }
-
         return highScorePanel;
     }
 
@@ -168,4 +139,9 @@ public class LeaderBoard extends JPanel {
         label.setAlignmentX(Component.CENTER_ALIGNMENT);
         label.setForeground(Color.DARK_GRAY);
     }
+    //kiem tra xem nguoi choi co phai la nguoi choi co diem cao trong top 10 hay khong
+    public boolean isHighScore(Player newHighScore) {
+        return newHighScore.isBigger(highScore.get(9));
+    }
+
 }

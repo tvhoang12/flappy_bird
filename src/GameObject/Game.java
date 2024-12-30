@@ -24,30 +24,22 @@ import javax.imageio.ImageIO;
 
 public class Game extends JPanel implements ActionListener, KeyListener {
     // kích thước của JPanel
-    int boardWidth = 500;
-    int boardHeight = 500;
+    private int boardWidth = 500;
+    private int boardHeight = 500;
 
     // các ảnh đồ họa cần thiết trong game
-    BufferedImage birdImage[] = new BufferedImage[3];
-    BufferedImage bottomPipeImage;
-    BufferedImage topPipeImage;
-    BufferedImage foregroundImage;
-    BufferedImage backgroundImage;
-    BufferedImage gameOverLabel;
-    BufferedImage restartButton;
-    BufferedImage addToLeaderBoardButton;
-    BufferedImage scoreBoard;
-    BufferedImage [] scoreNums = new BufferedImage[10];
-    BufferedImage goldMedal;
-    BufferedImage sliverMedal;
-    BufferedImage bronzeMedal;
-    BufferedImage platiumMedal;
+    private BufferedImage birdImage[] = new BufferedImage[3];
+    private BufferedImage bottomPipeImage;
+    private BufferedImage topPipeImage;
+    private BufferedImage foregroundImage;
+    private BufferedImage backgroundImage;
+    private BufferedImage [] scoreNums = new BufferedImage[10];
 
-    String pathToResouce = "D:\\sourceCode\\Flappy-bird-main\\res\\";
+    private String pathToResouce = "D:\\sourceCode\\Flappy-bird-main\\res\\";
 
     // vòng lặp thời gian của game
-    Timer gameLoop;
-    Timer placePipeTimer;
+    private Timer gameLoop;
+    private Timer placePipeTimer;
 
     // thống kế điểm
     private int score = 0;
@@ -57,19 +49,14 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     private static Audio audio = new Audio();
 
     //Bird
-    Bird bird;
+    private Bird bird;
     
     // khai báo màn hình game khi trò chơi kết thúc
     private GameOverScreen gameOverScreen;
 
     //Pipe
-    ArrayList<Pipe> pipes;
-    Random random = new Random();
+    private ArrayList<Pipe> pipes;
     
-    //Game State
-    final static int START = 0;
-    final static int GAME = 1;
-    private int gameState = START;
 
     public Game(int BestScore) throws IOException {
         setFocusable(true);
@@ -87,17 +74,9 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         bottomPipeImage = ImageIO.read(new File(pathToResouce + "pipe-north.png"));
         foregroundImage = ImageIO.read(new File(pathToResouce + "foreground.png"));
         backgroundImage = ImageIO.read(new File(pathToResouce + "background.png"));
-        restartButton = ImageIO.read(new File(pathToResouce + "restart.png"));
-        gameOverLabel = ImageIO.read(new File(pathToResouce + "gameOverText.png"));
-        addToLeaderBoardButton = ImageIO.read(new File(pathToResouce + "addtoleaderboard.png"));
-        scoreBoard = ImageIO.read(new File(pathToResouce + "scoreCard.png"));
         for(int i = 0; i < 10; i++) {
             scoreNums[i] = ImageIO.read(new File(pathToResouce + i + ".png"));
         }
-        goldMedal = ImageIO.read(new File(pathToResouce + "gold.png"));
-        sliverMedal = ImageIO.read(new File(pathToResouce + "silver.png"));
-        bronzeMedal = ImageIO.read(new File(pathToResouce + "bronze.png"));
-        platiumMedal = ImageIO.read(new File(pathToResouce + "platinum.png"));
         
         bird = new Bird(200, 150, birdImage);
         pipes = new ArrayList<>();
@@ -182,13 +161,14 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         if (bird.isAlive()) {
             bird.velocityY += bird.gravity;
             bird.yBird += bird.velocityY;
-
-            if (bird.yBird >= 385) { // Kiểm tra nếu chim chạm đáy
-                bird.yBird = 385;
+            bird.yBird = Math.min(bird.yBird, 385); // Giới hạn vị trí của chim không cho vượt
+            if (bird.yBird == 385) { // Kiểm tra nếu chim chạm đáy
                 bird.kill();// Cố định vị trí khi chạm nền
                 audio.hit();
                 gameLoop.stop();
                 placePipeTimer.stop();
+                
+
             }
 
             for (int i = 0; i < pipes.size(); i++) {
@@ -196,10 +176,10 @@ public class Game extends JPanel implements ActionListener, KeyListener {
                 pipe.movePipe();
 
                 if (!pipe.passed && bird.xBird > pipe.x + pipe.widthPipe && pipe.img == topPipeImage) {
-                    if(!pipe.passed) {
-                        score += 1;
-                        pipe.passed = true;
-                        audio.point();
+                    if(!pipe.passed){
+                    score += 1;
+                    pipe.passed = true;
+                    audio.point();
                     }
                 }
 
@@ -236,20 +216,16 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         bird.yBird = 150;           // Đặt lại vị trí Y của con chim
         bird.velocityY = 0;         // Đặt lại vận tốc Y
         bird.reHealth();            // Đặt lại trạng thái sống của con chim
-        pipes.clear();              // Xóa các ống
-        bird.gravity = 1;           // Đặt lại gia tốc
-        score = 0;// Đặt lại hình ảnh của chim
-        repaint();             // Vẽ lại màn hình để làm mới giao diện
-        gameLoop.start();       // Bắt đầu vòng lặp game
-        placePipeTimer.start();     // Bắt đầu vòng lặp tạo ống
+        pipes.clear();              // Xóa các ống 
+        score = 0;                  // Đặt lại điểm của chim
+        repaint();                  // Vẽ lại màn hình để làm mới giao diện
+        gameLoop.start();           // Bắt đầu lại vòng lặp game
+        placePipeTimer.start();     // Bắt đầu lại vòng lặp tạo ống
 
     }
 
     // điều kiện va chạm
     boolean collision(Bird a, Pipe b) {
-        if (a.xBird > b.x && a.yBird < 0) { // không cho chim bay quá
-            return true;
-        }
         return a.xBird < b.x + b.widthPipe
                 && //a's top left corner doesn't reach b's top right corner
                 a.xBird + a.widthBird > b.x
